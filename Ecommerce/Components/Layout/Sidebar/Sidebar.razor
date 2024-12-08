@@ -1,0 +1,48 @@
+﻿@using Ecommerce.Services
+@rendermode InteractiveServer  
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable 
+@inject SidebarService SidebarService
+<div id="sidebar" class="sidebar @((SidebarService.IsSidebarVisible)?"open":"") bg-black"> 
+        <p>Este es el Sidebar</p>
+        <button @onclick="SidebarService.ToggleSidebar">Toggle Sidebar</button>
+</div>
+
+
+@code {
+    private DotNetObjectReference<Sidebar>? _objRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _objRef = DotNetObjectReference.Create(this);
+            // Registrar la instancia con JavaScript después del renderizado
+            await JSRuntime.InvokeVoidAsync("registerDotNetInstance", _objRef);
+        }
+    }
+
+    [JSInvokable]
+    public void MiMetodoDesdeJs(string mensaje)
+    {
+        Console.WriteLine($"Mensaje recibido desde JS: {mensaje}");
+    }
+
+    [JSInvokable]
+    public async Task ToggleSidebarFromJs()
+    {
+        SidebarService.SetSidebarVisible(false); 
+    }
+
+    protected override void OnInitialized()
+    {
+        SidebarService.OnSidebarStateChanged += StateHasChanged;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        SidebarService.OnSidebarStateChanged -= StateHasChanged;
+        // 
+        _objRef?.Dispose();
+    }
+}

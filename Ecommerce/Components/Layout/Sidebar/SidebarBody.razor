@@ -1,20 +1,18 @@
-﻿@using Ecommerce.Services   
-@rendermode InteractiveServer
+﻿@implements IAsyncDisposable
 @inject SidebarService SidebarService
-@inject IJSRuntime JSRuntime
-@implements IDisposable
-
+@rendermode InteractiveServer
 @if (SidebarService.IsSidebarVisible)
 {
     <Sidebar></Sidebar>
 }
-@code{
+
+@code{ 
     protected override void OnInitialized()
     {
         SidebarService.OnSidebarStateChanged += StateHasChanged;
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         SidebarService.OnSidebarStateChanged -= StateHasChanged; 
     }

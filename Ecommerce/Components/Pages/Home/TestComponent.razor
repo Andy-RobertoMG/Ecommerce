@@ -1,0 +1,12 @@
+﻿@rendermode InteractiveServer
+<h3 @onclick="@Select">TestComponent</h3>
+
+@code {
+    private void Select(){
+        NavigationManager.NavigateTo("/?id=2");
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+}

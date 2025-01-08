@@ -2,23 +2,33 @@
 @rendermode InteractiveServer  
 @inject IJSRuntime JSRuntime
 @implements IAsyncDisposable 
-@inject SidebarService SidebarService
-<div id="sidebar" class="sidebar @((SidebarService.IsSidebarVisible)?"open":"") bg-black"> 
-        <p>Este es el Sidebar</p>
-        <button @onclick="SidebarService.ToggleSidebar">Toggle Sidebar</button>
+@inject SidebarService SidebarService 
+<div id="sidebar" class="sidebar @(((SidebarService.IsSidebarVisible&&!SidebarService.IsBeingClose))?"open":"close") bg-black">
+    <p>Este es el Sidebar</p>
+    <button @onclick="CloseSidebar">Toggle Sidebar</button>
 </div>
-
 
 @code {
     private DotNetObjectReference<Sidebar>? _objRef;
-
+    IJSObjectReference? module;
+    IJSObjectReference? sideBarInstance; 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _objRef = DotNetObjectReference.Create(this);
-            // Registrar la instancia con JavaScript después del renderizado
-            await JSRuntime.InvokeVoidAsync("registerDotNetInstance", _objRef);
+            try
+            {
+                _objRef = DotNetObjectReference.Create(this);
+                module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./scripts/sidebar.js");
+                sideBarInstance = await module.InvokeAsync<IJSObjectReference>("NewObjectSidebar");
+                await sideBarInstance.InvokeVoidAsync("registerDotNetInstance", _objRef);
+                await sideBarInstance.InvokeVoidAsync("asignHandleResize");
+            }
+            catch (Exception ex)
+            {
+                // Maneja la excepción aquí
+                Console.Error.WriteLine($"Error al interactuar con JavaScript: {ex.Message}");
+            }
         }
     }
 
@@ -31,9 +41,33 @@
     [JSInvokable]
     public async Task ToggleSidebarFromJs()
     {
-        SidebarService.SetSidebarVisible(false); 
+        if (!SidebarService.IsBeingClose)
+        {
+            SidebarService.SetBeingClosedActive();
+            StateHasChanged();
+            //Da error cuando el archivo esta ciendo cerrado lo mejor es por el momento ponerlo dentro del DisposeAsync debido a que y eliminar el 
+            // if (sideBarInstance != null)
+            // {
+            //     await sideBarInstance.InvokeVoidAsync("disableResizeListener");
+            // }
+            await Task.Delay(300);
+            SidebarService.SetBeingClosedInactive();
+            SidebarService.CloseSidebar();
+        }
     }
 
+    private async Task CloseSidebar()
+    {
+        if (!SidebarService.IsBeingClose)
+        {
+            SidebarService.SetBeingClosedActive();
+            StateHasChanged();
+            
+            await Task.Delay(300);
+            SidebarService.SetBeingClosedInactive();
+            SidebarService.CloseSidebar();
+        }
+    }
     protected override void OnInitialized()
     {
         SidebarService.OnSidebarStateChanged += StateHasChanged;
@@ -41,8 +75,26 @@
 
     public async ValueTask DisposeAsync()
     {
-        SidebarService.OnSidebarStateChanged -= StateHasChanged;
-        // 
-        _objRef?.Dispose();
+        try
+        {
+            if (sideBarInstance != null)
+            {
+                await sideBarInstance.InvokeVoidAsync("disableResizeListener");
+                await sideBarInstance.DisposeAsync();
+            }
+            if (sideBarInstance != null)
+            {
+                // await sideBarInstance.InvokeVoidAsync("disableResizeListener");
+            }
+            if (module != null)
+            {
+                await module.DisposeAsync();
+            }
+            SidebarService.OnSidebarStateChanged -= StateHasChanged;
+            _objRef?.Dispose();
+        }catch(Exception ex)
+        {
+            Console.Error.WriteLine($"Error al interactuar con JavaScript: {ex.Message}");
+        }
     }
 }

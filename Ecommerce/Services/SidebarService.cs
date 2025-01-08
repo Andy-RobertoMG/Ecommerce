@@ -3,7 +3,7 @@
     public class SidebarService
     {
         public bool IsSidebarVisible { get; private set; }
-
+        public bool IsBeingClose { get;private set; }
         public event Action OnSidebarStateChanged;
 
         public void ToggleSidebar()
@@ -25,6 +25,14 @@
         {
             IsSidebarVisible = false;
             NotifyStateChanged();
+        }
+        public void SetBeingClosedActive()
+        {
+            IsBeingClose = true;
+        }
+        public void SetBeingClosedInactive()
+        {
+            IsBeingClose = false;
         }
         private void NotifyStateChanged() => OnSidebarStateChanged?.Invoke();
     }

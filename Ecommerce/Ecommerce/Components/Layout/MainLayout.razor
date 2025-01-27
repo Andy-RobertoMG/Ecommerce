@@ -1,0 +1,27 @@
+﻿@inherits LayoutComponentBase
+@using Ecommerce.Components.Layout.Footer
+@using Ecommerce.Components.Layout.NavMenu
+@using Ecommerce.Components.Layout.Sidebar
+@using Ecommerce.Components.Layout.Header
+@inject SidebarService SidebarService 
+<section class="layout">
+    <Header></Header>
+    <main class="main bg-white overflow-auto">
+        @Body
+    </main>
+    <Footer></Footer>
+</section>
+<Sidebar></Sidebar>
+
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // StateContainer.Property = "5";
+    }
+}

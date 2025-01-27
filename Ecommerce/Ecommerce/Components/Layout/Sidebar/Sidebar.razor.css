@@ -1,0 +1,45 @@
+﻿/* Estilo base para la barra lateral */
+.sidebar {
+    width: 0;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #333; /* Ajusta el color de fondo según tu diseño */
+    overflow-x: hidden;
+    z-index: 1;
+    transition: none; /* Desactiva la transición predeterminada */
+    animation: slideOut 0.3s ease forwards; /* Aplica la animación de cierre por defecto */
+}
+
+/* Animación de apertura */
+@keyframes slideIn {
+    0% {
+        width: 0;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+/* Animación de cierre */
+@keyframes slideOut {
+    0% {
+        width: 100%;
+    }
+
+    100% {
+        width: 0;
+    }
+}
+
+/* Clase para abrir la barra lateral */
+.sidebar.open {
+    animation: slideIn 0.3s ease forwards; /* Animación para abrir */
+}
+
+/* Clase para cerrar la barra lateral */
+.sidebar.close {
+    animation: slideOut 0.3s ease forwards; /* Animación para cerrar */
+}

@@ -1,0 +1,20 @@
+﻿@using Ecommerce.Components.Layout.Header.Components
+<header class="header ">
+    <div class="grid grid-cols-3">
+        <div class="">
+            <Menu Class="block sm:hidden" Style="height:2rem;width:2rem;color:red;" @rendermode="InteractiveServer">
+            </Menu>
+        </div> 
+        
+        @* <div class="col-4 d-none d-sm-none d-md-block d-lg-block d-xl-block d-xxl-block"></div> *@
+        <InputText class="bg-gray-50 border border-gray-300 text-gray-900 text-sm" @bind-Value="searchProduct"></InputText>
+        <div class="">
+
+        </div>
+    </div>
+    
+    
+</header>
+@code {
+    private string searchProduct ="";
+}
